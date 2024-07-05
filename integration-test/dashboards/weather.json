@@ -11,12 +11,6 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [],
-          "type": "dashboard"
-        },
         "type": "dashboard"
       }
     ]
@@ -30,7 +24,7 @@
     {
       "datasource": {
         "type": "meln5674-mongodb-community",
-        "uid": "${datasource}"
+        "uid": "P1CC9A79BDAF09793"
       },
       "fieldConfig": {
         "defaults": {
@@ -86,17 +80,17 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 21,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "right",
+          "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
@@ -106,34 +100,34 @@
       },
       "targets": [
         {
-          "aggregation": "[{\"$project\":{\"created_at\":1,\"user_url\":\"$user.url\",\"retweet_count\":1,\"_id\":0}}, { \"$match\": { \"user_url\" : { \"$in\": ${user_url}  } }  }  ]",
-          "autoTimeBound": false,
-          "autoTimeSort": false,
-          "collection": "tweets",
-          "database": "twitter",
+          "aggregation": "[{\"$project\":{\"timestamp\":1,\"sensorID\":\"$metadata.sensorId\",\"temperature\":\"$temp\"}}]",
+          "autoTimeBound": true,
+          "autoTimeSort": true,
+          "collection": "weather",
+          "database": "test",
           "datasource": {
             "type": "meln5674-mongodb-community",
-            "uid": "${datasource}"
+            "uid": "P1CC9A79BDAF09793"
           },
           "labelFields": [
-            "user_url"
+            "sendos"
           ],
-          "legendFormat": "{{.Value}}({{.Labels.user_url | trimPrefix \"http://t.co/\"}})",
+          "legendFormat": "",
           "queryType": "Timeseries",
           "refId": "A",
           "schemaInference": false,
           "schemaInferenceDepth": 20,
-          "timestampField": "created_at",
-          "timestampFormat": "Jan 02 15:04:05 -0700 2006",
+          "timestampField": "timestamp",
+          "timestampFormat": "",
           "valueFieldTypes": [
-            "float64"
+            "int32"
           ],
           "valueFields": [
-            "retweet_count"
+            "temperature"
           ]
         }
       ],
-      "title": "Retweets",
+      "title": "Temperature",
       "type": "timeseries"
     }
   ],
@@ -142,72 +136,15 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
-        "current": {
-          "selected": false,
-          "text": "mongodb",
-          "value": "P1CC9A79BDAF09793"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "name": "datasource",
-        "options": [],
-        "query": "meln5674-mongodb-community",
-        "queryValue": "",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": [
-            "http://t.co/Lg7nFDkidP",
-            "http://t.co/vVcENSGcDg",
-            "http://t.co/3Xvuxw2JEG"
-          ],
-          "value": [
-            "http://t.co/Lg7nFDkidP",
-            "http://t.co/vVcENSGcDg",
-            "http://t.co/3Xvuxw2JEG"
-          ]
-        },
-        "datasource": {
-          "type": "meln5674-mongodb-community",
-          "uid": "${datasource}"
-        },
-        "definition": "twitter (tweets)",
-        "hide": 0,
-        "includeAll": false,
-        "multi": true,
-        "name": "user_url",
-        "options": [],
-        "query": {
-          "aggregation": "[{\"$group\":{\"_id\":\"$user.url\"}},{\"$match\": { \"_id\": { \"$ne\": null } } }]",
-          "collection": "tweets",
-          "database": "twitter",
-          "fieldName": "_id",
-          "fieldType": "string"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      }
-    ]
+    "list": []
   },
   "time": {
-    "from": "2015-04-25T15:15:20.000Z",
-    "to": "2015-05-03T09:04:17.000Z"
+    "from": "now-2d",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Retweets",
-  "uid": "DLIPtXhVk",
-  "version": 1,
+  "title": "Weather",
+  "version": 0,
   "weekStart": ""
 }

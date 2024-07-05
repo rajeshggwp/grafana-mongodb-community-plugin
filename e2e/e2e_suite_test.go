@@ -47,14 +47,14 @@ var (
 
 var _ = BeforeSuite(func(ctx context.Context) {
 	f, err := os.Create("../integration-test/datasets/download/tweets.zip")
-	resp, err := http.Get("https://github.com/ozlerhakan/mongodb-json-files/blob/master/datasets/tweets.zip?raw=true")
+	resp, err := http.Get("https://github.com/meln5674/mongodb-json-files/blob/master/datasets/tweets.zip?raw=true")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(resp.StatusCode).To(Equal(http.StatusOK))
 	_, err = io.Copy(f, resp.Body)
 	Expect(err).ToNot(HaveOccurred())
 
 	f, err = os.Create("../integration-test/datasets/download/transactions.json")
-	resp, err = http.Get("https://github.com/fieldsets/mongodb-sample-datasets/blob/main/sample_analytics/transactions.json?raw=true")
+	resp, err = http.Get("https://github.com/meln5674/mongodb-sample-dataset/blob/main/sample_analytics/transactions.json?raw=true")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(resp.StatusCode).To(Equal(http.StatusOK))
 	_, err = io.Copy(f, resp.Body)
@@ -307,16 +307,10 @@ var (
 	}
 
 	mongodbChart = gingk8s.HelmChart{
-		/*
-			RemoteChartInfo: gingk8s.RemoteChartInfo{
-				Name:    "mongodb",
-				Repo:    &bitnamiRepo,
-				Version: "13.18.1",
-			}
-		*/
-		LocalChartInfo: gingk8s.LocalChartInfo{
-			Path: "../integration-test/bitnami-charts/bitnami/mongodb/",
-			// DependencyUpdate: true,
+		RemoteChartInfo: gingk8s.RemoteChartInfo{
+			Name:    "mongodb",
+			Repo:    &bitnamiRepo,
+			Version: "14.1.0",
 		},
 	}
 
@@ -390,6 +384,13 @@ var (
 					},
 				},
 			),
+			gingk8s.ConfigMap("dashboard-weather", "", nil,
+				gingk8s.Object{
+					"weather.json": func() ([]byte, error) {
+						return os.ReadFile("../integration-test/dashboards/weather.json")
+					},
+				},
+			),
 			gingk8s.ConfigMap("grafana-ini", "", nil,
 				gingk8s.Object{
 					"grafana.ini": func() ([]byte, error) {
@@ -410,6 +411,8 @@ var (
 		"dashboardsConfigMaps[0].fileName":      "retweets.json",
 		"dashboardsConfigMaps[1].configMapName": "dashboard-transactions",
 		"dashboardsConfigMaps[1].fileName":      "transactions.json",
+		"dashboardsConfigMaps[2].configMapName": "dashboard-weather",
+		"dashboardsConfigMaps[2].fileName":      "weather.json",
 		"podLabels.plugin-sum": func() string {
 			pluginBytes, err := os.ReadFile("../meln5674-mongodb-community.zip")
 			Expect(err).ToNot(HaveOccurred())
@@ -434,16 +437,18 @@ var (
 		"plugins": "meln5674-mongodb-community=http://plugin-repo/grafana-mongodb-community-plugin/meln5674-mongodb-community.zip",
 	}
 
-	grafana = gingk8s.HelmRelease{
-		Name: "grafana",
-		Chart: &gingk8s.HelmChart{
-			RemoteChartInfo: gingk8s.RemoteChartInfo{
-				Name: "grafana",
-				Repo: &bitnamiRepo,
-				// TODO: Pin Version
-			},
+	grafanaChart = gingk8s.HelmChart{
+		RemoteChartInfo: gingk8s.RemoteChartInfo{
+			Name:    "grafana",
+			Repo:    &bitnamiRepo,
+			Version: "9.6.0",
 		},
-		Set: grafanaSet(devMode),
+	}
+
+	grafana = gingk8s.HelmRelease{
+		Name:  "grafana",
+		Chart: &grafanaChart,
+		Set:   grafanaSet(devMode),
 	}
 
 	grafana7 = gingk8s.HelmRelease{
